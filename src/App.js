@@ -1,23 +1,80 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+
+let socket = io("localhost:4000");
 
 function App() {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected");
+      socket.emit("ready");
+    });
+    socket.on("chat message", (history) => {
+      console.log("New message");
+      console.log(history);
+      setMessages(history);
+    });
+    socket.on("updated_state", (data) => {
+      console.log(data);
+    });
+  }, []);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    console.log("You clicked submit.");
+
+    console.log(e.target.message.value);
+    socket.emit("chat message", e.target.message.value);
+  }
+
+  function createRoom() {
+    const roomName = prompt("Name the room:");
+
+    socket.emit("create_room", roomName);
+    console.log("skapade rum:", roomName);
+  }
+
+  function joinRoom() {
+    const roomName = prompt("Which room do you want to join?");
+
+    socket.emit("join_room", roomName);
+    console.log(`${socket.id} joined room: `, roomName);
+  }
+
+  function leaveRoom() {}
+
+  function deleteRoom() {}
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <title>Chatrooms</title>
+      <h1>Chatroom</h1>
+
+      <button onClick={createRoom}>Create room</button>
+      <button onClick={joinRoom}>Join room</button>
+      <button onClick={deleteRoom}>Delete room</button>
+      <button onClick={leaveRoom}>Leave room</button>
+
+      <form onSubmit={handleSubmit}>
+        <input name="message"></input>
+        <button type="submit">Send</button>
+        <br></br>
+
+        <ul>
+          {messages.map(({ message, id, date }) => {
+            return (
+              <li className="li">
+                {date}
+                <br />
+                {id}:<div className="separate"></div> {message}
+              </li>
+            );
+          })}
+        </ul>
+      </form>
     </div>
   );
 }
