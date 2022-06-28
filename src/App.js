@@ -44,9 +44,18 @@ function App() {
     console.log(`${socket.id} joined room: `, roomName);
   }
 
-  function leaveRoom() {}
+  function deleteRoom() {
+    const roomName = prompt("Which room do you want to delete?");
 
-  function deleteRoom() {}
+    socket.emit("delete_room", roomName);
+    console.log(`${socket.id} deleted room: `, roomName);
+  }
+
+  function leaveRoom() {
+    const roomName = "default";
+    socket.emit("join_room", roomName);
+    console.log(`${socket.id} joined room: `, "default");
+  }
 
   return (
     <div className="App">
