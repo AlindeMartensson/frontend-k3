@@ -2,7 +2,7 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-let socket = io("localhost:4000");
+let socket = io("process.env.REACT_APP_BACKEND_URL");
 
 function App() {
   const [messages, setMessages] = useState([]);
